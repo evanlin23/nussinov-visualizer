@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nussinov RNA Fold</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.plot.ly/plotly-2.31.0.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Nussinov Algorithm with Optimal Structure Enumeration</h1>
+        </header>
+
+        <main class="content">
+            <section class="panel input-panel">
+                <h2>Input Sequence</h2>
+                <form id="predict-form">
+                    <div class="form-group">
+                        <label for="sequence">RNA Sequence (A, C, G, U, I)</label>
+                        <textarea id="sequence" rows="4" placeholder="e.g. GGCIGIUG... (max 50 elements)"
+                            maxlength="50"></textarea>
+                        <div id="char-count"
+                            style="font-size: 0.75rem; color: var(--text-secondary); text-align: right; margin-top: 4px;">
+                            0 / 50</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="min-loop">Min Hairpin Loop Length</label>
+                        <input type="number" id="min-loop" value="3" min="0" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="threshold">Suboptimal Threshold (<span style="font-size: 0.75rem; color: var(--text-secondary);">0.0 = only completely optimal</span>)</label>
+                        <input type="number" id="threshold" value="0.0" min="0" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pairing Weights Matrix</label>
+                        <div class="matrix-container">
+                            <table class="weight-matrix">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>A</th>
+                                        <th>C</th>
+                                        <th>G</th>
+                                        <th>U</th>
+                                        <th>I</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- A Row -->
+                                    <tr>
+                                        <th>A</th>
+                                        <td><input type="number" step="0.1" id="w-A-A" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-A-C" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-A-G" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-A-U" value="1.0"></td>
+                                        <td><input type="number" step="0.1" id="w-A-I" value="0.0"></td>
+                                    </tr>
+                                    <!-- C Row -->
+                                    <tr>
+                                        <th>C</th>
+                                        <td><input type="number" step="0.1" id="w-C-A" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-C-C" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-C-G" value="1.0"></td>
+                                        <td><input type="number" step="0.1" id="w-C-U" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-C-I" value="0.0"></td>
+                                    </tr>
+                                    <!-- G Row -->
+                                    <tr>
+                                        <th>G</th>
+                                        <td><input type="number" step="0.1" id="w-G-A" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-G-C" value="1.0"></td>
+                                        <td><input type="number" step="0.1" id="w-G-G" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-G-U" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-G-I" value="0.0"></td>
+                                    </tr>
+                                    <!-- U Row -->
+                                    <tr>
+                                        <th>U</th>
+                                        <td><input type="number" step="0.1" id="w-U-A" value="1.0"></td>
+                                        <td><input type="number" step="0.1" id="w-U-C" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-U-G" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-U-U" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-U-I" value="0.0"></td>
+                                    </tr>
+                                    <!-- I Row -->
+                                    <tr>
+                                        <th>I</th>
+                                        <td><input type="number" step="0.1" id="w-I-A" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-I-C" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-I-G" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-I-U" value="0.0"></td>
+                                        <td><input type="number" step="0.1" id="w-I-I" value="0.0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <button type="submit" id="submit-btn" class="btn primary-btn" style="margin-top: 1.5rem;">
+                        <span class="btn-text">Predict Structures</span>
+                    </button>
+                </form>
+                <div id="error-msg" class="error-msg hidden"></div>
+            </section>
+
+            <section class="panel results-panel">
+                <h2>Results <span id="loading-spinner" class="hidden spinner"></span></h2>
+
+                <div id="results-content" class="hidden">
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <span class="stat-label">Max Accumulated Weight</span>
+                            <span class="stat-value" id="res-score">-</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Structures Analyzed</span>
+                            <span class="stat-value" id="res-num-structures">-</span>
+                            <div id="res-truncated" class="hidden" style="color: var(--error-color); font-size: 0.75rem; margin-top: 4px; font-weight: 500;">(Hard Stop: 100,000 max reached)</div>
+                        </div>
+                    </div>
+
+                    <div class="heatmap-container" style="border-top: none; padding-top: 0;">
+                        <h3>Base Pair Frequencies</h3>
+                        <div id="heatmap-plot"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\onehalfspacing 
+
+\newcommand{\ev}{{\mathbb E}}
+
+
+
+
+\title{CS 466 Project Proposal}
+\author{Ben Fauman (bfauman2@illinois.edu)\\ Evan Lin (elin26@illinois.edu)}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+\section*{Brief Motivation}
+From class, we learned that an RNA's function is determined by its shape. As such, predicting RNA secondary structure is a critical problem in bioinformatics.
+
+One such algorithm we learned for approaching this problem is the Nussinov algorithm. This algorithm uses dynamic programming to maximize base pairing, unlike more modern algorithms like Zuker's which uses energy based models. Additionally, despite its limitations, it remains a fundamental tool for understanding RNA folding.
+
+For our final project, we plan on implementing the Nussinov algorithm using Python. As an extension to the algorithm discussed in class, which only found one optimal structure, we intend to additionally provide a visualization tool to enumerate all possible optimal secondary structures. 
+\section*{Datasets you plan to use}
+For initial testing and verification, we plan to use synthetic data where the optimal secondary structure is known and predictable. After we have verified the correctness of our implementation, we also plan to use the Rfam database to see if our implementation and successfully predict known biological sequences. To benchmark our algorithm implementation, we will generate random sequences at varying lengths to test performance and scalability. 
+\section*{Planned method/experimentations}
+Using the Rfam database, we will use small RNA sequences to see if the Nussinov algorithm can successfully predict the known secondary structures. By using a heatmap (Base Pair Frequency Plot) of the solution space we can see which parts of solutions are more common which will hopefully lead to better predictions. As mentioned above, we also plan on benchmarking our implementation by generating a synthetic dataset with random sequences of varying lengths. 
+
+\section*{Project Timeline}
+\begin{itemize}
+\item Base algorithm implemented by 4/15/26
+\item All optimal solutions implemented by 4/30/26
+\item Ran on dataset by 5/5/26
+\item Good display UI implemented by 5/10/26
+\item Project completed by 5/17/26
+\end{itemize}
+
+\end{document}
