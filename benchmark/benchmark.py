@@ -4,17 +4,25 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend'))
-from nussinov import get_dp_table, traceback
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'backend'))
+from nussinov import get_dp_table, suboptimal_traceback
 
 def generate_random_rna(length):
-    bases = ['A', 'C', 'G', 'U']
+    bases = ['A', 'C', 'G', 'U', 'I']
     return ''.join(random.choice(bases) for _ in range(length))
 
 def benchmark():
     lengths = list(range(10, 201, 10))
     runtimes_dp = []
     runtimes_total = []
+    
+    # Default symmetric weights logic to test with
+    test_weights = {
+        'A': {'U': 1.0},
+        'U': {'A': 1.0},
+        'C': {'G': 1.0},
+        'G': {'C': 1.0}
+    }
     
     print("Starting Benchmark...")
     print(f"{'Length':<10} | {'DP Time (s)':<15} | {'Total Time (s)':<15}")
@@ -24,11 +32,10 @@ def benchmark():
         seq = generate_random_rna(L)
         
         start_time = time.time()
-        dp = get_dp_table(seq, min_loop_length=3, allow_wobble=False)
+        dp = get_dp_table(seq, min_loop_length=3, weights=test_weights)
         dp_time = time.time() - start_time
         
-        start_time2 = time.time()
-        paths = traceback(dp, seq, 0, len(seq)-1, min_loop_length=3, allow_wobble=False)
+        paths, trunc = suboptimal_traceback(dp, seq, min_loop_length=3, weights=test_weights, budget=0.0, limit=100000)
         total_time = time.time() - start_time
         
         runtimes_dp.append(dp_time)
