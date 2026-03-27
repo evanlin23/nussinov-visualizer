@@ -16,7 +16,6 @@ def benchmark():
     runtimes_dp = []
     runtimes_total = []
     
-    # Default symmetric weights logic to test with
     test_weights = {
         'A': {'U': 1.0},
         'U': {'A': 1.0},

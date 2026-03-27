@@ -7,13 +7,11 @@ from typing import Dict
 import os
 import sys
 
-# Add the current directory to path to allow importing nussinov
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from nussinov import get_dp_table, suboptimal_traceback, structures_to_dot_bracket, get_pair_frequencies
 
 app = FastAPI(title="Nussinov RNA Predictor API")
 
-# Setup CORS just in case frontend is run separately during dev
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,7 +29,6 @@ class PredictRequest(BaseModel):
 @app.post("/api/predict")
 def predict(req: PredictRequest):
     seq = req.sequence.upper()
-    # Remove whitespace
     seq = "".join(seq.split())
     if not seq:
         return {"error": "Empty sequence"}

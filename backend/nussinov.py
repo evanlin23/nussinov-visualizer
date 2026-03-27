@@ -20,10 +20,8 @@ def get_dp_table(seq, min_loop_length, weights):
                 dp[i][j] = 0.0
                 continue
                 
-            # Option 1: j is unpaired
             ans = dp[i][j-1]
             
-            # Option 2: j pairs with k (i <= k < j - min_loop_length)
             for k in range(i, j - min_loop_length):
                 w = get_pair_weight(seq[k], seq[j], weights)
                 if w > 0:
@@ -41,9 +39,7 @@ def suboptimal_traceback(dp, seq, min_loop_length, weights, budget=0.0, limit=10
     if n <= min_loop_length:
         return [[]], False
 
-    # Stack stores: (intervals_to_process, accumulated_loss, current_path)
     stack = [([(0, n-1)], 0.0, [])]
-    
     unique_structures = set()
     truncated = False
     
@@ -55,14 +51,12 @@ def suboptimal_traceback(dp, seq, min_loop_length, weights, budget=0.0, limit=10
         intervals, curr_loss, path = stack.pop()
         
         if not intervals:
-            # We finished all intervals for this structure
             struct = frozenset(path)
             if struct not in unique_structures:
                 unique_structures.add(struct)
                 results.append(path)
             continue
             
-        # Pop the last interval
         i, j = intervals[-1]
         rem_intervals = intervals[:-1]
         
@@ -70,12 +64,10 @@ def suboptimal_traceback(dp, seq, min_loop_length, weights, budget=0.0, limit=10
             stack.append((rem_intervals, curr_loss, path))
             continue
             
-        # Move 1: j is unpaired
         loss_unpaired = dp[i][j] - dp[i][j-1]
         if curr_loss + loss_unpaired <= budget + 1e-6:
             stack.append((rem_intervals + [(i, j-1)], curr_loss + loss_unpaired, path))
             
-        # Move 2: j pairs with k
         for k in range(i, j - min_loop_length):
             w = get_pair_weight(seq[k], seq[j], weights)
             if w > 0:

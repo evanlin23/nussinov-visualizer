@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const bases = ['A', 'C', 'G', 'U', 'I'];
     
-    // Auto sync logic for matrix
     bases.forEach(b1 => {
         bases.forEach(b2 => {
             if (b1 !== b2) {
@@ -32,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Character count listener
     seqInput.addEventListener('input', () => {
         let val = seqInput.value.replace(/\s+/g, '');
         charCount.textContent = `${val.length} / 50`;
@@ -50,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const minLoop = parseInt(minLoopInput.value, 10);
         const threshold = parseFloat(thresholdInput.value);
         
-        // Remove spaces and newlines from input string
         seq = seq.replace(/\s+/g, '');
         
         if (!seq) {
@@ -143,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resTruncated.classList.remove('hidden');
         }
         
-        // Render Heatmap
         renderHeatmap(data.sequence, data.frequencies);
         
         resultsContent.classList.remove('hidden');
@@ -153,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const labels = seq.split('');
         const xLabels = labels.map((char, i) => `${i+1}: ${char}`);
         
-        // Plotly uses bottom-to-top for y-axis by default
         const yLabels = [...xLabels].reverse();
         const reversedFreqMatrix = [...freqMatrix].reverse();
         
