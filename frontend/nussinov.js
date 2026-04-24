@@ -157,8 +157,8 @@ function predict(sequence, minLoopLength, weights, suboptimalThreshold = 0.0) {
     if (!seq) {
         return { error: "Empty sequence" };
     }
-    if (seq.length > 50) {
-        return { error: "Sequence too long (Max 50 constraint enforced)" };
+    if (seq.length > 200) {
+        return { error: "Sequence too long (Max 200 constraint enforced)" };
     }
 
     const dp = getDpTable(seq, minLoopLength, weights);

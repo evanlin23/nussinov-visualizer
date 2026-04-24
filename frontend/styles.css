@@ -27,7 +27,7 @@ body {
 }
 
 .app-container {
-    max-width: 1000px;
+    max-width: 1200px;
     width: 100%;
 }
 
@@ -50,16 +50,9 @@ header p {
 }
 
 .content {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
-    align-items: start;
-}
-
-@media (max-width: 768px) {
-    .content {
-        grid-template-columns: 1fr;
-    }
 }
 
 .panel {
@@ -235,6 +228,10 @@ input[type="number"]:focus, textarea:focus {
 .heatmap-container {
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
+}
+
+#heatmap-plot {
+    width: 100%;
 }
 
 .matrix-container {

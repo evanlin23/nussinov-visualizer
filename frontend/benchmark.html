@@ -17,8 +17,8 @@
             padding: 2rem;
         }
         h1 { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.5rem; }
-        p { color: #666; margin-bottom: 1.5rem; }
-        #run-btn {
+        p { color: #666; margin-bottom: 1.5rem; text-align: center; }
+        .btn {
             padding: 0.75rem 2rem;
             background: #000;
             color: #fff;
@@ -29,8 +29,9 @@
             cursor: pointer;
             margin-bottom: 1.5rem;
         }
-        #run-btn:hover { background: #333; }
-        #run-btn:disabled { background: #999; cursor: not-allowed; }
+        .btn:hover { background: #333; }
+        .btn:disabled { background: #999; cursor: not-allowed; }
+        .btn-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
         #log {
             font-family: monospace;
             font-size: 0.8rem;
@@ -39,23 +40,42 @@
             border-radius: 6px;
             padding: 1rem;
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             max-height: 300px;
             overflow-y: auto;
             white-space: pre;
             margin-bottom: 1.5rem;
         }
-        #plot { width: 100%; max-width: 800px; }
+        .plot { width: 100%; max-width: 900px; margin-bottom: 2rem; }
+        h2 { font-size: 1.25rem; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
     <h1>Nussinov Algorithm Performance Benchmark</h1>
-    <p>Sequences from length 10 to 200, measuring DP table creation and full traceback times.</p>
-    <button id="run-btn" onclick="runBenchmark()">Run Benchmark</button>
+
+    <div class="btn-row">
+        <button class="btn" id="run-length-btn" onclick="runLengthBenchmark()">Run Length Benchmark</button>
+        <button class="btn" id="run-threshold-btn" onclick="runThresholdBenchmark()">Run Threshold Benchmark</button>
+    </div>
     <div id="log"></div>
-    <div id="plot"></div>
+
+    <h2>Sequence Length Scaling</h2>
+    <p>Sequences from length 10 to 200 (threshold = 0), measuring DP table creation and full traceback times.</p>
+    <div class="plot" id="plot-length"></div>
+
+    <h2>Suboptimal Threshold Scaling</h2>
+    <p>Fixed sequence length of 50, varying threshold from 0.0 to 5.0, measuring traceback time and structure count.</p>
+    <div class="plot" id="plot-threshold"></div>
 
     <script>
+        const testWeights = {
+            'A': { 'A': 0, 'C': 0, 'G': 0, 'U': 1, 'I': 0 },
+            'C': { 'A': 0, 'C': 0, 'G': 1, 'U': 0, 'I': 0 },
+            'G': { 'A': 0, 'C': 1, 'G': 0, 'U': 0, 'I': 0 },
+            'U': { 'A': 1, 'C': 0, 'G': 0, 'U': 0, 'I': 0 },
+            'I': { 'A': 0, 'C': 0, 'G': 0, 'U': 0, 'I': 0 }
+        };
+
         function generateRandomRNA(length) {
             const bases = ['A', 'C', 'G', 'U'];
             let seq = '';
@@ -71,21 +91,11 @@
             el.scrollTop = el.scrollHeight;
         }
 
-        async function runBenchmark() {
-            const btn = document.getElementById('run-btn');
+        async function runLengthBenchmark() {
+            const btn = document.getElementById('run-length-btn');
             btn.disabled = true;
             btn.textContent = 'Running...';
-
-            const logEl = document.getElementById('log');
-            logEl.textContent = '';
-
-            const testWeights = {
-                'A': { 'A': 0, 'C': 0, 'G': 0, 'U': 1, 'I': 0 },
-                'C': { 'A': 0, 'C': 0, 'G': 1, 'U': 0, 'I': 0 },
-                'G': { 'A': 0, 'C': 1, 'G': 0, 'U': 0, 'I': 0 },
-                'U': { 'A': 1, 'C': 0, 'G': 0, 'U': 0, 'I': 0 },
-                'I': { 'A': 0, 'C': 0, 'G': 0, 'U': 0, 'I': 0 }
-            };
+            document.getElementById('log').textContent = '';
 
             const lengths = [];
             for (let l = 10; l <= 200; l += 10) lengths.push(l);
@@ -93,11 +103,10 @@
             const dpTimes = [];
             const totalTimes = [];
 
-            log('Starting Benchmark...');
+            log('=== Length Benchmark ===');
             log(`${'Length'.padEnd(10)} | ${'DP Time (ms)'.padEnd(15)} | ${'Total Time (ms)'.padEnd(15)}`);
             log('-'.repeat(45));
 
-            // Use setTimeout to yield to the browser between iterations
             for (const L of lengths) {
                 await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -107,9 +116,9 @@
                 const dp = getDpTable(seq, 3, testWeights);
                 const dpTime = performance.now() - startDP;
 
-                const startTotal = performance.now();
+                const startTrace = performance.now();
                 suboptimalTraceback(dp, seq, 3, testWeights, 0.0, 100000);
-                const totalTime = (performance.now() - startTotal) + dpTime;
+                const totalTime = dpTime + (performance.now() - startTrace);
 
                 dpTimes.push(dpTime);
                 totalTimes.push(totalTime);
@@ -117,27 +126,25 @@
                 log(`${String(L).padEnd(10)} | ${dpTime.toFixed(2).padEnd(15)} | ${totalTime.toFixed(2).padEnd(15)}`);
             }
 
-            log('\nBenchmark complete.');
+            log('\nLength benchmark complete.');
 
-            Plotly.newPlot('plot', [
+            Plotly.newPlot('plot-length', [
                 {
-                    x: lengths,
-                    y: dpTimes,
+                    x: lengths, y: dpTimes,
                     name: 'DP Table Creation (O(N\u00B3))',
                     mode: 'lines+markers',
                     marker: { symbol: 'circle' },
                     line: { color: 'blue' }
                 },
                 {
-                    x: lengths,
-                    y: totalTimes,
+                    x: lengths, y: totalTimes,
                     name: 'DP + Traceback',
                     mode: 'lines+markers',
                     marker: { symbol: 'x' },
                     line: { color: 'red', dash: 'dash' }
                 }
             ], {
-                title: 'Nussinov Algorithm Performance Benchmark',
+                title: 'Runtime vs Sequence Length (Threshold = 0)',
                 xaxis: { title: 'RNA Sequence Length' },
                 yaxis: { title: 'Runtime (ms)' },
                 legend: { x: 0.05, y: 0.95 },
@@ -147,7 +154,80 @@
             }, { responsive: true });
 
             btn.disabled = false;
-            btn.textContent = 'Run Benchmark';
+            btn.textContent = 'Run Length Benchmark';
+        }
+
+        async function runThresholdBenchmark() {
+            const btn = document.getElementById('run-threshold-btn');
+            btn.disabled = true;
+            btn.textContent = 'Running...';
+            document.getElementById('log').textContent = '';
+
+            const seqLen = 50;
+            const seq = generateRandomRNA(seqLen);
+            const dp = getDpTable(seq, 3, testWeights);
+
+            const thresholds = [];
+            for (let t = 0; t <= 5.0; t = Math.round((t + 0.5) * 10) / 10) thresholds.push(t);
+
+            const tracebackTimes = [];
+            const structureCounts = [];
+
+            log('=== Threshold Benchmark ===');
+            log(`Sequence length: ${seqLen}`);
+            log(`${'Threshold'.padEnd(12)} | ${'Traceback (ms)'.padEnd(16)} | ${'Structures'.padEnd(12)}`);
+            log('-'.repeat(45));
+
+            for (const threshold of thresholds) {
+                await new Promise(resolve => setTimeout(resolve, 0));
+
+                const start = performance.now();
+                const { paths, truncated } = suboptimalTraceback(dp, seq, 3, testWeights, threshold, 100000);
+                const elapsed = performance.now() - start;
+
+                tracebackTimes.push(elapsed);
+                structureCounts.push(paths.length);
+
+                const truncNote = truncated ? ' (truncated)' : '';
+                log(`${threshold.toFixed(1).padEnd(12)} | ${elapsed.toFixed(2).padEnd(16)} | ${String(paths.length).padEnd(12)}${truncNote}`);
+            }
+
+            log('\nThreshold benchmark complete.');
+
+            Plotly.newPlot('plot-threshold', [
+                {
+                    x: thresholds, y: tracebackTimes,
+                    name: 'Traceback Time',
+                    mode: 'lines+markers',
+                    marker: { symbol: 'circle' },
+                    line: { color: 'blue' },
+                    yaxis: 'y'
+                },
+                {
+                    x: thresholds, y: structureCounts,
+                    name: 'Structure Count',
+                    mode: 'lines+markers',
+                    marker: { symbol: 'diamond' },
+                    line: { color: 'green', dash: 'dash' },
+                    yaxis: 'y2'
+                }
+            ], {
+                title: 'Runtime & Structure Count vs Suboptimal Threshold (Length = 50)',
+                xaxis: { title: 'Suboptimal Threshold' },
+                yaxis: { title: 'Traceback Time (ms)', side: 'left' },
+                yaxis2: {
+                    title: 'Structure Count',
+                    overlaying: 'y',
+                    side: 'right'
+                },
+                legend: { x: 0.05, y: 0.95 },
+                margin: { t: 50, r: 60, b: 50, l: 60 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
+            }, { responsive: true });
+
+            btn.disabled = false;
+            btn.textContent = 'Run Threshold Benchmark';
         }
     </script>
 </body>

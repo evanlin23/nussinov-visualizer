@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     seqInput.addEventListener('input', () => {
         let val = seqInput.value.replace(/\s+/g, '');
-        charCount.textContent = `${val.length} / 50`;
-        if (val.length > 50) {
+        charCount.textContent = `${val.length} / 200`;
+        if (val.length > 200) {
             charCount.style.color = "var(--error-color)";
         } else {
             charCount.style.color = "var(--text-secondary)";
@@ -60,8 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        if (seq.length > 50) {
-            showError("Sequence length cannot exceed 50 elements.");
+        if (seq.length > 200) {
+            showError("Sequence length cannot exceed 200 elements.");
             return;
         }
         
@@ -127,10 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
             resTruncated.classList.remove('hidden');
         }
 
+        resultsContent.classList.remove('hidden');
+
         renderFornac(data.sequence, data.dotBracket);
         renderHeatmap(data.sequence, data.frequencies);
-
-        resultsContent.classList.remove('hidden');
     }
 
     function renderFornac(seq, dotBracket) {
@@ -172,8 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
             showscale: true
         };
         
+        const plotEl = document.getElementById('heatmap-plot');
+        const plotWidth = plotEl.parentElement.clientWidth;
+
         const layout = {
-            margin: { t: 10, r: 10, b: 50, l: 50 },
+            margin: { t: 10, r: 10, b: 80, l: 80 },
             xaxis: {
                 tickangle: -45,
                 tickfont: { size: 10, family: 'monospace' }
@@ -181,7 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
             yaxis: {
                 tickfont: { size: 10, family: 'monospace' }
             },
-            height: 400,
+            width: plotWidth,
+            height: 700,
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)'
         };
