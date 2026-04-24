@@ -140,12 +140,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const containerEl = document.getElementById('fornac-container');
         containerEl.innerHTML = '';
 
-        if (typeof FornaContainer === 'undefined') {
+        if (typeof fornac === 'undefined' || typeof fornac.FornaContainer === 'undefined') {
             containerEl.textContent = 'Fornac library failed to load.';
             return;
         }
 
-        const container = new FornaContainer('#fornac-container', {
+        const container = new fornac.FornaContainer('#fornac-container', {
             animation: true,
             zoomable: true,
             initialSize: [containerEl.clientWidth || 600, 400],
