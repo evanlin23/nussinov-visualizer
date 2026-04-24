@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.plot.ly/plotly-2.31.0.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ViennaRNA/fornac@master/dist/fornac.css">
+    <script src="https://cdn.jsdelivr.net/gh/ViennaRNA/fornac@master/dist/fornac.js"></script>
 </head>
 
 <body>
@@ -124,7 +126,13 @@
                         </div>
                     </div>
 
-                    <div class="heatmap-container" style="border-top: none; padding-top: 0;">
+                    <div class="fornac-section">
+                        <h3>Optimal Structure Visualization</h3>
+                        <p id="fornac-dot-bracket" class="dot-bracket-display"></p>
+                        <div id="fornac-container"></div>
+                    </div>
+
+                    <div class="heatmap-container">
                         <h3>Base Pair Frequencies</h3>
                         <div id="heatmap-plot"></div>
                     </div>

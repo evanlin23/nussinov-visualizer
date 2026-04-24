@@ -177,12 +177,14 @@ function predict(sequence, minLoopLength, weights, suboptimalThreshold = 0.0) {
     });
 
     const freqMatrix = getPairFrequencies(uniquePaths, seq.length);
+    const dotBrackets = structuresToDotBracket(seq, uniquePaths);
 
     return {
         sequence: seq,
         score: Math.round(score * 10000) / 10000,
         num_structures: uniquePaths.length,
         truncated,
-        frequencies: freqMatrix
+        frequencies: freqMatrix,
+        dotBracket: dotBrackets.length > 0 ? dotBrackets[0] : '.'.repeat(seq.length)
     };
 }

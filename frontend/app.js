@@ -126,10 +126,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.truncated) {
             resTruncated.classList.remove('hidden');
         }
-        
+
+        renderFornac(data.sequence, data.dotBracket);
         renderHeatmap(data.sequence, data.frequencies);
-        
+
         resultsContent.classList.remove('hidden');
+    }
+
+    function renderFornac(seq, dotBracket) {
+        const dotBracketEl = document.getElementById('fornac-dot-bracket');
+        dotBracketEl.textContent = dotBracket;
+
+        const containerEl = document.getElementById('fornac-container');
+        containerEl.innerHTML = '';
+
+        if (typeof FornaContainer === 'undefined') {
+            containerEl.textContent = 'Fornac library failed to load.';
+            return;
+        }
+
+        const container = new FornaContainer('#fornac-container', {
+            animation: true,
+            zoomable: true,
+            initialSize: [containerEl.clientWidth || 600, 400],
+            labelInterval: 1
+        });
+
+        container.addRNA(dotBracket, { sequence: seq });
     }
     
     function renderHeatmap(seq, freqMatrix) {
