@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             animation: true,
             zoomable: true,
             initialSize: [containerEl.clientWidth || 600, 400],
-            labelInterval: 1
+            labelInterval: 0
         });
 
         container.addRNA(dotBracket, { sequence: seq });
