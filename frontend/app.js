@@ -80,31 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         try {
-            const response = await fetch('/api/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sequence: seq,
-                    min_loop_length: minLoop,
-                    weights: weightsMatrix,
-                    suboptimal_threshold: isNaN(threshold) ? 0.0 : threshold
-                })
-            });
-            
-            const data = await response.json();
-            
+            const data = predict(seq, minLoop, weightsMatrix, isNaN(threshold) ? 0.0 : threshold);
+
             if (data.error) {
                 showError(data.error);
                 setLoading(false);
                 return;
             }
-            
+
             displayResults(data);
-            
+
         } catch (error) {
-            showError("Failed to fetch predictions. Ensure backend is running.");
+            showError("Prediction failed: " + error.message);
             console.error(error);
         } finally {
             setLoading(false);
