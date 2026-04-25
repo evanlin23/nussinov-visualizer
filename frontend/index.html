@@ -36,14 +36,18 @@
                         <input type="number" id="min-loop" value="3" min="0" max="20">
                     </div>
                     <div class="form-group">
-                        <label for="threshold">Suboptimal Threshold (<span style="font-size: 0.75rem; color: var(--text-secondary);">0.0 = only completely optimal</span>)</label>
+                        <label for="threshold">Suboptimal Threshold (<span
+                                style="font-size: 0.75rem; color: var(--text-secondary);">0.0 = only completely
+                                optimal</span>)</label>
                         <input type="number" id="threshold" value="0.0" min="0" step="0.1">
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                             <label style="margin-bottom: 0;">Pairing Weights Matrix</label>
-                            <select id="weight-preset" class="preset-select" style="padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); background-color: var(--surface-color); color: var(--text-primary); font-family: 'Inter', sans-serif;">
+                            <select id="weight-preset" class="preset-select"
+                                style="padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); background-color: var(--surface-color); color: var(--text-primary); font-family: 'Inter', sans-serif;">
                                 <option value="basic">Basic (AU=1, CG=1)</option>
                                 <option value="turner">Thermodynamic Proxy (CG=3, AU=2.1, GU=1.2, IC=1.8)</option>
                                 <option value="custom">Custom</option>
@@ -110,9 +114,18 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div id="thermo-desc" class="hidden" style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary); background: #f5f5f5; padding: 1rem; border-radius: 6px; border-left: 3px solid #666; text-align: left;">
-                            <p style="margin-bottom: 0.5rem; text-align: left;">“Base-pairing weights were assigned according to relative thermodynamic stability derived from nearest-neighbor RNA parameters (Mathews et al., 2004; Turner & Mathews, 2010). Canonical Watson–Crick and wobble pairs (GC, AU, GU) were scaled to 3.0, 2.1, and 1.2, respectively, consistent with both thermodynamic ranges and statistically learned parameters (Do et al., 2006).”</p>
-                            <p style="text-align: left;">“Inosine pairing weights (I–C, I–U, I–A) were derived from experimental thermodynamic measurements of inosine-containing RNA duplexes (Wright et al., 2007) and scaled to the same framework. Non-canonical or weak pairs (e.g., I–G) were assigned zero weight.”</p>
+                        <div id="thermo-desc" class="hidden"
+                            style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary); background: #f5f5f5; padding: 1rem; border-radius: 6px; border-left: 3px solid #666; text-align: left;">
+                            <p style="margin-bottom: 0.5rem; text-align: left;">Base-pairing weights were assigned
+                                according to relative thermodynamic stability derived from nearest-neighbor RNA
+                                parameters (Mathews et al., 2004; Turner & Mathews, 2010). Canonical Watson–Crick and
+                                wobble pairs (GC, AU, GU) were scaled to 3.0, 2.1, and 1.2, respectively, consistent
+                                with both thermodynamic ranges and statistically learned parameters (Do et al., 2006).
+                            </p>
+                            <p style="text-align: left;">Inosine pairing weights (I–C, I–U, I–A) were derived from
+                                experimental thermodynamic measurements of inosine-containing RNA duplexes (Wright et
+                                al., 2007) and scaled to the same framework. Non-canonical or weak pairs (e.g., I–G)
+                                were assigned zero weight.</p>
                         </div>
                     </div>
                     <button type="submit" id="submit-btn" class="btn primary-btn" style="margin-top: 1.5rem;">
@@ -134,7 +147,9 @@
                         <div class="stat-box">
                             <span class="stat-label">Structures Analyzed</span>
                             <span class="stat-value" id="res-num-structures">-</span>
-                            <div id="res-truncated" class="hidden" style="color: var(--error-color); font-size: 0.75rem; margin-top: 4px; font-weight: 500;">(Hard Stop: 100,000 max reached)</div>
+                            <div id="res-truncated" class="hidden"
+                                style="color: var(--error-color); font-size: 0.75rem; margin-top: 4px; font-weight: 500;">
+                                (Hard Stop: 100,000 max reached)</div>
                         </div>
                     </div>
 
@@ -153,15 +168,26 @@
 
             <section class="panel references-panel">
                 <h2>References & Reading</h2>
-                <ul class="references-list" style="font-size: 0.875rem; color: var(--text-secondary); padding-left: 1.5rem; line-height: 1.6;">
+                <ul class="references-list"
+                    style="font-size: 0.875rem; color: var(--text-secondary); padding-left: 1.5rem; line-height: 1.6;">
                     <li>
-                        <strong>Nussinov, R., & Jacobson, A. B. (1980).</strong> Fast algorithm for predicting the secondary structure of single-stranded RNA. <em>Proceedings of the National Academy of Sciences</em>, 77(11), 6309-6313. <a href="https://doi.org/10.1073/pnas.77.11.6309" target="_blank" style="color: var(--text-primary); text-decoration: underline;">Link</a>
+                        <strong>Nussinov, R., & Jacobson, A. B. (1980).</strong> Fast algorithm for predicting the
+                        secondary structure of single-stranded RNA. <em>Proceedings of the National Academy of
+                            Sciences</em>, 77(11), 6309-6313. <a href="https://doi.org/10.1073/pnas.77.11.6309"
+                            target="_blank" style="color: var(--text-primary); text-decoration: underline;">Link</a>
                     </li>
                     <li style="margin-top: 0.5rem;">
-                        <strong>Mathews, D. H., Sabina, J., Zuker, M., & Turner, D. H. (1999).</strong> Expanded sequence dependence of thermodynamic parameters improves prediction of RNA secondary structure. <em>Journal of molecular biology</em>, 288(5), 911-940. <a href="https://doi.org/10.1006/jmbi.1999.2700" target="_blank" style="color: var(--text-primary); text-decoration: underline;">Link</a>
+                        <strong>Mathews, D. H., Sabina, J., Zuker, M., & Turner, D. H. (1999).</strong> Expanded
+                        sequence dependence of thermodynamic parameters improves prediction of RNA secondary structure.
+                        <em>Journal of molecular biology</em>, 288(5), 911-940. <a
+                            href="https://doi.org/10.1006/jmbi.1999.2700" target="_blank"
+                            style="color: var(--text-primary); text-decoration: underline;">Link</a>
                     </li>
                     <li style="margin-top: 0.5rem;">
-                        <strong>Wright, D. J., Rice, J. L., Yanker, D. M., & Znosko, B. M. (2007).</strong> Nearest neighbor parameters for inosine–cytosine pairs in RNA duplexes. <em>Biochemistry</em>, 46(15), 4625-4634. <a href="https://doi.org/10.1021/bi0622353" target="_blank" style="color: var(--text-primary); text-decoration: underline;">Link</a>
+                        <strong>Wright, D. J., Rice, J. L., Yanker, D. M., & Znosko, B. M. (2007).</strong> Nearest
+                        neighbor parameters for inosine–uridine pairs in RNA duplexes. <em>Biochemistry</em>, 46(15),
+                        4625-4634. <a href="https://doi.org/10.1021/bi0616910" target="_blank"
+                            style="color: var(--text-primary); text-decoration: underline;">Link</a>
                     </li>
                 </ul>
             </section>
