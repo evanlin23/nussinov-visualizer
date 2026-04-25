@@ -17,6 +17,62 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const bases = ['A', 'C', 'G', 'U', 'I'];
     
+    const presetSelect = document.getElementById('weight-preset');
+
+    const presets = {
+        basic: { 'A-U': 1.0, 'U-A': 1.0, 'C-G': 1.0, 'G-C': 1.0 },
+        turner: { 
+            'C-G': 3.0, 'G-C': 3.0, 
+            'A-U': 2.1, 'U-A': 2.1, 
+            'G-U': 1.2, 'U-G': 1.2,
+            'I-C': 1.8, 'C-I': 1.8,
+            'I-U': 1.2, 'U-I': 1.2,
+            'I-A': 0.7, 'A-I': 0.7
+        }
+    };
+
+    function setWeightsFromPreset(presetName) {
+        if (presetName === 'custom') return;
+        
+        bases.forEach(b1 => {
+            bases.forEach(b2 => {
+                if (b1 !== b2) {
+                    const input = document.getElementById(`w-${b1}-${b2}`);
+                    if (input) input.value = 0.0;
+                }
+            });
+        });
+
+        const weights = presets[presetName];
+        if (weights) {
+            for (const [pair, val] of Object.entries(weights)) {
+                const [b1, b2] = pair.split('-');
+                const input = document.getElementById(`w-${b1}-${b2}`);
+                if (input) input.value = val.toFixed(1);
+            }
+        }
+    }
+
+    const thermoDesc = document.getElementById('thermo-desc');
+
+    function updateThermoDescVisibility(presetName) {
+        if (thermoDesc) {
+            if (presetName === 'turner') {
+                thermoDesc.classList.remove('hidden');
+            } else {
+                thermoDesc.classList.add('hidden');
+            }
+        }
+    }
+
+    if (presetSelect) {
+        updateThermoDescVisibility(presetSelect.value);
+        presetSelect.addEventListener('change', (e) => {
+            setWeightsFromPreset(e.target.value);
+            updateThermoDescVisibility(e.target.value);
+        });
+    }
+
     bases.forEach(b1 => {
         bases.forEach(b2 => {
             if (b1 !== b2) {
@@ -25,6 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     input.addEventListener('input', (e) => {
                         const symmetricInput = document.getElementById(`w-${b2}-${b1}`);
                         if(symmetricInput) symmetricInput.value = e.target.value;
+                        
+                        if (presetSelect) {
+                            presetSelect.value = 'custom';
+                            updateThermoDescVisibility('custom');
+                        }
                     });
                 }
             }
