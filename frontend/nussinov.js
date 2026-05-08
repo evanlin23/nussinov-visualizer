@@ -1,8 +1,3 @@
-/**
- * Nussinov RNA Secondary Structure Prediction Algorithm
- * Ported from backend/nussinov.py for client-side execution
- */
-
 function getPairWeight(b1, b2, weightsMatrix) {
     const w1 = (weightsMatrix[b1] && weightsMatrix[b1][b2]) || 0.0;
     const w2 = (weightsMatrix[b2] && weightsMatrix[b2][b1]) || 0.0;
@@ -148,9 +143,6 @@ function getPairFrequencies(paths, n) {
     return freq;
 }
 
-/**
- * Main predict function - replaces the /api/predict endpoint
- */
 function predict(sequence, minLoopLength, weights, suboptimalThreshold = 0.0) {
     let seq = sequence.toUpperCase().replace(/\s+/g, '');
 
@@ -165,7 +157,6 @@ function predict(sequence, minLoopLength, weights, suboptimalThreshold = 0.0) {
     const { paths, truncated } = suboptimalTraceback(dp, seq, minLoopLength, weights, suboptimalThreshold);
     const score = seq.length > 0 ? dp[0][seq.length - 1] : 0;
 
-    // Deduplicate paths
     const uniqueSet = new Set();
     const uniquePaths = [];
     paths.forEach(p => {
