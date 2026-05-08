@@ -1,0 +1,110 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\onehalfspacing
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+\title{CS 466 Project Final Report:\\Nussinov Algorithm with Optimal Structure Enumeration}
+\author{Ben Fauman (bfauman2@illinois.edu)\\ Evan Lin (elin26@illinois.edu)}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+RNA secondary structure prediction is critical in bioinformatics because the function of an RNA molecule is largely determined by its folded shape. In class, we learned the Nussinov algorithm, which is a dynamic programming algorithm that maximizes base pairing to predict secondary structure. The standard implementation only finds one optimal folding, but does not account for the full set of all equally optimal structures. Having access to this set can provide richer insights into an RNA molecule's secondary structure.
+
+In this project, we implement the Nussinov algorithm in JavaScript and extend it with a complete enumeration of all optimal (and near-optimal, threshold tunable with input) secondary structures. We provide an interactive visualization that displays an example optimal structure, dot-bracket notation, and a heatmap of base pair frequencies over all analyzed structures. Our implementation is extremely configurable with adjustable pairing weights, minimum hairpin loop lengths, and suboptimal threshold for near-optimal structures. 
+
+\subsection{Changes from Proposal}
+Our original proposal planned to implement the Nussinov algorithm in Python, but we later switched to javascript to allow the entire application to run on the client-side inside of the browser. This allowed us to more easily deploy our application onto GitHub Pages. Additionally, our proposal mentioned benchmarking on the Rfam database, but we instead focused on benchmarking on synthetic random sequences of varying lengths and thresholds, which provided sufficient data to characterize the performance of the algorithm.
+
+The code can be found on GitHub: \url{https://github.com/evanlin23/nussinov-visualizer}, and the live application is deployed at \url{https://evanlin23.github.io/nussinov-visualizer/}.
+
+\section{Implementation Details}
+
+\subsection{Nussinov Algorithm}
+The Nussinov algorithm uses dynamic programming to find the maximum number of base pairs (or, in our implementation, we instead optimize for the maximum accumulated pairing weight) in an RNA secondary structure under the minimum hairpin loop length.
+
+We fill a DP table $\texttt{dp}[i][j]$ representing the maximum pairing weight achievable for the subsequence from position $i$ to position $j$. The recurrence for $\texttt{dp}[i][j]$ is as follows:
+\begin{align*}\max \begin{cases}
+\texttt{dp}[i][j-1] & \text{($j$ is unpaired)} \\
+\texttt{dp}[i][k-1] + \texttt{dp}[k+1][j-1] + \delta(k, j) & \forall i \leq k < j - L,\; \delta(k,j) > 0
+\end{cases}
+\end{align*}
+where $L$ is the minimum hairpin loop length and $\delta(k, j)$ is the pairing weight between bases at positions $k$ and $j$. The table is filled in order of increasing subsequence length, giving an overall time complexity of $O(n^3)$ and space complexity of $O(n^2)$.
+\subsection{Optimal Structure Enumeration via Traceback}
+The main extension for our final project is the enumeration of all optimal secondary structures. The standard Nussinov traceback produces only a single structure (albeit efficiently) by making arbitrary choices at branching points. Instead of this, we perform an exhaustive traceback that explores all paths through the DP table that achieve the optimal score. 
+
+Our traceback uses a stack based approach. Each frame in our stack consists of the following: 
+\begin{itemize}
+    \item A list of intervals $[i, j]$ remaining to be traced
+    \item The accumulated loss from optimal (for suboptimal enumeration)
+    \item The list of base pairs found so far
+\end{itemize}
+For each interval $[i, j]$, the algorithm considers two types of moves:
+\begin{enumerate}
+    \item \textbf{Unpaired:} Leave $j$ unpaired and continue with $[i, j-1]$. The ``loss'' from this choice is $\texttt{dp}[i][j] - \texttt{dp}[i][j-1]$.
+    \item \textbf{Paired:} For each valid $k$ where $w(k, j) > 0$, pair $k$ with $j$ and split into subintervals $[i, k-1]$ and $[k+1, j-1]$. The loss is $\texttt{dp}[i][j] - (\texttt{dp}[i][k-1] + \texttt{dp}[k+1][j-1] + w(k,j))$.
+\end{enumerate}
+A move is explored only if the total accumulated loss stays within the user-specified budget (0.0 for strictly optimal). Structures are deduplicated using a canonical string key. We set a hard limit of 100{,}000 structures (somewhat arbitrarily) so that computation completes in a reasonable amount of time. 
+\subsection{Weighted Pairing and Inosine Support}
+Instead of uniform weights, we allow a full pairing weight matrix. Additionally, we allow the base Inosine. We also provide two presets:
+\begin{itemize}
+    \item \textbf{Basic:} A-U and C-G pairs have weight 1.0; all others are 0.
+    \item \textbf{Thermodynamic Proxy:} Weights inspired by Turner nearest-neighbor energy parameters: C-G = 3.0, A-U = 2.1, G-U (wobble) = 1.2, I-C = 1.8, I-U = 1.2, I-A = 0.7.
+\end{itemize}
+Users can also specify fully custom weights via our frontend interface. 
+
+\subsection{Visualization}
+
+The web application provides three forms of output:
+
+\begin{enumerate}
+    \item \textbf{Dot-bracket notation:} The first optimal structure is displayed in standard dot-bracket format.
+    \item \textbf{Structure graph:} We use the fornac library to render an interactive, force-directed graph of the optimal structure, where edges represent base pairs and the backbone.
+    \item \textbf{Base pair frequency heatmap:} Across all enumerated structures, we compute the frequency with which each pair $(i, j)$ appears, displayed as a heatmap. This allows for deeper insight about which base pairings are more robust, providing deeper insight into the RNA secondary structure.
+\end{enumerate}
+
+\section{Benchmarking}
+Our Benchmarking can be found at 
+\url{https://evanlin23.github.io/nussinov-visualizer/benchmark} 
+\subsection{Suboptimal Threshold Scaling}   
+    \includegraphics[width=1\linewidth]{suboptThresholdScaling.png} \\
+We were interested in how our Nussinov implementation scaled in time-to-run and structures-found as the suboptimal threshold increased. Our benchmarking for this tests this with the default scoring matrix on sequences of length 50 at every 0.5 scoring threshold up to 5. An interesting feature of this graph is that once we max out at 100k structures found, our traceback time actually starts decreasing with respect to suboptimal threshold. We suspect this is because when we increase the suboptimal threshold enough, more paths are within the allowed score and so we find our 100k structures faster, at which point our algorithm simply returns.
+
+\subsection{Sequence Length Scaling}
+    \includegraphics[width=1\linewidth]{sequenceLengthScaling.png}
+We were interested in how our Nussinov implementation scaled in time-to-run as the sequence length increased. Our benchmarking for this tests with the default scoring matrix on random sequences of lengths multiples of 200. We can off the bat note that much of the run time is dominated by the traceback rather than the DP table creation itself. An interesting feature of this graph is the variance of the timing in Traceback we find at each length. We suspect this is because the randomness of the sequence itself plays a large role in how fast we can perform the traceback, not just the sequence length. A natural extension would be to find an average of traceback timings over many randomized runs per sequence length. We decided not to implement this however as this benchmark already takes on the order of tens of seconds to run, and so any multi-run average could take on the order of minutes.
+
+\section{Future Work}
+There are many improvements to extend this project in the future. In particular:
+\begin{itemize}
+    \item \textbf{Longer sequences:} Currently there is a 200-base-pair limit due to the high variability in the traceback runtime. Moving the core algorithm to WebAssembly (compiled from C/C++) could extend this significantly.
+    \item \textbf{Traceback optimizations:} Instead of fully exhaustive enumeration, using different heuristics or pruning strategies could improve runtime significantly.
+\end{itemize}
+\section{Conclusion}
+In this project, we implemented an interactive static webpage implementation of the Nussinov algorithm. We extended the standard algorithm to enumerate near-optimal structures within a configurable score threshold. This extension allows users to look beyond a single predicted folding and instead examine the broader space of equally strong or nearly strong candidate structures. The information this change to the traceback provides is summarized by the base pair frequency heatmap of which pairings are most consistent across the enumerated structure set.
+We also display one of the optimal structures found using the fornac library to further help our user visualize.
+
+Our results show that the dynamic programming portion of the Nussinov algorithm scales predictably with sequence length, while the traceback step has a high variance and is the dominant computational cost. This reflects the main tradeoff of our project: enumerating many possible structures provides richer insight, but it also introduces significant runtime challenges as the number of valid structures grows. To keep the tool usable, we added a hard cap both on the sequence length permitted (to 200) and on the number of structures returned (to 100k).
+
+Our resulting webapp provides a configurable and visual way to explore RNA secondary structure prediction, while also highlighting directions for future work.
+
+\end{document}
